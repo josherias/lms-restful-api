@@ -1,0 +1,96 @@
+<?php
+
+namespace App;
+
+use App\Transformers\UserTransformer;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Laravel\Passport\HasApiTokens;
+
+class User extends Authenticatable
+{
+    use Notifiable, HasApiTokens, SoftDeletes;
+
+
+    const VERIFIED_USER = '1';
+    const UNVERIFIED_USER = '0';
+
+
+    const ADMIN_USER = 'true';
+    const REGULAR_USER = 'false';
+
+    public $transformer = UserTransformer::class; //obtains full namespace of the tranformer class
+
+
+    protected $dates = ['deleted_at'];
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password', 'verified', 'verification_token', 'admin'
+    ];
+
+    protected $table = 'users'; ///enables the student and instrucor to use the users table;
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token', 'verification_token', 'email_verified_at'
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+
+    //defining mutator to set name to lowercase when storing to db
+    public function setNameAttribute($name)
+    {
+        $this->attributes['name'] = strtolower($name);
+    }
+
+
+    //defining mutator to set email to lowercase when storing to db
+    public function setEmailAttribute($email)
+    {
+        $this->attributes['email'] = strtolower($email);
+    }
+
+
+    // accessor for name attribute
+    public function getNameAttribute($name)
+    {
+        return ucwords($name);
+    }
+
+
+    public function isVerified()
+    {
+        return $this->verified == User::VERIFIED_USER;
+    }
+
+
+    public function isAdmin()
+    {
+        return $this->admin == User::ADMIN_USER;
+    }
+
+    public static function generateVerificationToken()
+    {
+        return Str::random(40);
+    }
+}

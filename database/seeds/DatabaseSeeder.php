@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
 
         // $this->call(UserSeeder::class);
 
-        DB::statement('SET FOREIGN_KEY_CHECKS = 0'); //disable forign key checks temporaliry fr truncateing the tables
+        //DB::statement('SET FOREIGN_KEY_CHECKS = 0'); //disable forign key checks temporaliry fr truncateing the tables
+
 
         //first truncate all the tables before seedingthe data in db
         User::truncate();
